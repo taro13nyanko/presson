@@ -5,7 +5,7 @@
 No app store, no install, no signal needed: open the link once and it works offline. The same algorithm also runs as open firmware on a $5 ESP32 puck that you can run in your browser right now.
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="19%"> <img src="docs/screenshots/step3.png" width="19%"> <img src="docs/screenshots/harder.png" width="19%"> <img src="docs/screenshots/good.png" width="19%"> <img src="docs/screenshots/summary.png" width="19%">YOUR-GITHUB-NAME
+  <img src="docs/screenshots/home.png" width="19%"> <img src="docs/screenshots/step3.png" width="19%"> <img src="docs/screenshots/harder.png" width="19%"> <img src="docs/screenshots/good.png" width="19%"> <img src="docs/screenshots/summary.png" width="19%">taro13nyanko
 </p>
 
 > VoltHacks 2026 · Smart Health Technology (+ AI + Hardware Integration) · built by a first-year student at the University of Tokyo, alone, with a phone, a cushion and a laptop.
