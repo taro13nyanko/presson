@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PressOn — instructor screen</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .card { background: var(--panel); border-radius: 18px; padding: 14px; position: relative; }
+  .card h3 { margin: 0 0 6px; display: flex; justify-content: space-between; font-size: 18px; }
+  .card .big { display: flex; gap: 12px; align-items: baseline; }
+  .card .big b { font-size: 46px; font-variant-numeric: tabular-nums; }
+  .card .big span { color: var(--muted); font-size: 13px; }
+  .card .st { font-weight: 900; font-size: 20px; margin: 4px 0; }
+  .card .meta { color: var(--muted); font-size: 13px; }
+  .card.ended { opacity: 0.6; }
+  .card canvas { width: 100%; height: 50px; display: block; margin-top: 6px; }
+  .empty { color: var(--muted); text-align: center; padding: 40px; }
+  .wide { max-width: 1200px; }
+</style>
+</head>
+<body>
+<section class="screen wide">
+  <div class="brand"><h1>Instructor screen</h1><span id="conn" class="small">connecting…</span></div>
+  <p class="small">Every phone on this Wi-Fi that opened PressOn from this server appears here live. Green = in target, red = needs correction, grey = paused.</p>
+  <div id="grid" class="grid"><div class="empty">Waiting for phones… open <b id="url"></b> on a phone and start a training session.</div></div>
+</section>
+<script>
+(function () {
+  var trainees = {}, hist = {};
+  document.getElementById('url').textContent = location.origin + '/';
+  function color(s) { return s === 'good' ? '#22d36b' : s === 'paused' || s === 'none' ? '#98a2ad' : s === 'softer' ? '#ffb020' : '#ff3b3b'; }
+  function label(s) { return { none: 'starting', harder: 'PUSH HARDER', softer: 'A LITTLE LESS', faster: 'FASTER', slower: 'SLOWER', good: 'GOOD', paused: 'PAUSED' }[s] || s; }
+  function render() {
+    var g = document.getElementById('grid'), ids = Object.keys(trainees);
+    if (!ids.length) return;
+    g.innerHTML = '';
+    ids.sort().forEach(function (id) {
+      var r = trainees[id];
+      var el = document.createElement('div'); el.className = 'card' + (r.ended ? ' ended' : '');
+      el.innerHTML = '<h3><span>' + esc(r.name) + '</span><span class="small">' + (r.mode || '') + ' · ' + fmt(r.t) + '</span></h3>' +
+        '<div class="st" style="color:' + color(r.status) + '">' + (r.ended ? 'FINISHED' : label(r.status)) + '</div>' +
+        '<div class="big"><b style="color:' + (r.rate >= 100 && r.rate <= 120 ? '#22d36b' : '#ff3b3b') + '">' + (r.count >= 2 ? r.rate : '--') + '</b><span>/min</span>' +
+        '<b style="color:' + (r.depthCm >= 5 && r.depthCm <= 6 ? '#22d36b' : '#ff3b3b') + '">' + (r.count ? r.depthCm.toFixed(1) : '--') + '</b><span>cm</span></div>' +
+        '<div class="meta">' + r.count + ' compressions · hands-off ' + r.handsOff + ' s · CCF ' + (r.count ? r.ccf + '%' : '--') +
+        (r.stats ? ' · in target ' + r.stats.inTargetPct + '%' : '') + '</div><canvas width="260" height="50"></canvas>';
+      g.appendChild(el);
+      spark(el.querySelector('canvas'), hist[id] || []);
+    });
+  }
+  function spark(cv, h) {
+    var c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height);
+    if (h.length < 2) return;
+    c.fillStyle = 'rgba(34,211,107,0.15)'; c.fillRect(0, cv.height * (1 - (120 - 60) / 100), cv.width, cv.height * (20 / 100));
+    c.strokeStyle = '#22d36b'; c.lineWidth = 1.5; c.beginPath();
+    h.forEach(function (p, i) { var x = i / (h.length - 1) * cv.width, y = cv.height * (1 - (Math.min(160, Math.max(60, p.rate)) - 60) / 100); i ? c.lineTo(x, y) : c.moveTo(x, y); });
+    c.stroke();
+    c.strokeStyle = '#3ea6ff'; c.beginPath();
+    h.forEach(function (p, i) { var x = i / (h.length - 1) * cv.width, y = cv.height * (1 - Math.min(8, p.depthCm) / 8); i ? c.lineTo(x, y) : c.moveTo(x, y); });
+    c.stroke();
+  }
+  function esc(s) { return String(s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
+  function fmt(s) { s = s || 0; return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  // instructor.html#demo shows four simulated trainees (for GitHub Pages, where there is no relay)
+  function demo() {
+    document.getElementById('conn').textContent = 'demo data';
+    var seed = [
+      { id: 'p1', name: 'Yusuke', mode: 'training', t: 47, count: 80, rate: 108, depthCm: 5.3, paused: false, handsOff: 2, ccf: 96, status: 'good' },
+      { id: 'p2', name: 'Mika', mode: 'training', t: 41, count: 55, rate: 86, depthCm: 3.9, paused: false, handsOff: 0, ccf: 100, status: 'harder' },
+      { id: 'p3', name: 'Ken', mode: 'training', t: 52, count: 70, rate: 112, depthCm: 5.1, paused: true, handsOff: 6, ccf: 88, status: 'paused' },
+      { id: 'esp', name: 'Puck A (ESP32)', mode: 'trainer', t: 30, count: 50, rate: 118, depthCm: 5.8, paused: false, handsOff: 0, ccf: 100, status: 'good' }
+    ];
+    seed.forEach(function (r) {
+      trainees[r.id] = r; hist[r.id] = [];
+      for (var i = 0; i < 60; i++) hist[r.id].push({ rate: r.rate + Math.sin(i / 5) * 6, depthCm: r.depthCm + Math.cos(i / 4) * 0.4 });
+    });
+    render();
+    setInterval(function () {
+      Object.keys(trainees).forEach(function (id) {
+        var r = trainees[id]; if (r.ended || r.paused) return;
+        r.t += 1; r.count += 2; r.rate = Math.round(r.rate + (Math.random() - 0.5) * 4); r.depthCm = +(r.depthCm + (Math.random() - 0.5) * 0.3).toFixed(1);
+        hist[id].push({ rate: r.rate, depthCm: r.depthCm }); if (hist[id].length > 240) hist[id].shift();
+      });
+      render();
+    }, 1000);
+  }
+  function connect() {
+    if (location.hash === '#demo') { demo(); return; }
+    var es = new EventSource('api/stream');
+    es.onopen = function () { document.getElementById('conn').textContent = 'live'; };
+    es.onerror = function () { document.getElementById('conn').textContent = 'reconnecting…'; };
+    es.onmessage = function (ev) {
+      try {
+        var r = JSON.parse(ev.data);
+        if (r.snapshot) { r.snapshot.forEach(function (x) { trainees[x.id] = x; }); render(); return; }
+        trainees[r.id] = r;
+        (hist[r.id] = hist[r.id] || []).push({ rate: r.rate, depthCm: r.depthCm });
+        if (hist[r.id].length > 240) hist[r.id].shift();
+        render();
+      } catch (e) { /* ignore */ }
+    };
+  }
+  connect();
+})();
+</script>
+</body>
+</html>

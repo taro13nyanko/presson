@@ -1,0 +1,6 @@
+# Wokwi for VS Code / wokwi-cli configuration.
+# Build first:  arduino-cli compile --fqbn esp32:esp32:esp32 --export-binaries firmware/presson-trainer
+[wokwi]
+version = 1
+firmware = "build/esp32.esp32.esp32/presson-trainer.ino.bin"
+elf = "build/esp32.esp32.esp32/presson-trainer.ino.elf"

@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "author": "PressOn",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-mpu6050", "id": "imu1", "top": 30, "left": 260, "attrs": {} },
+    { "type": "board-ssd1306", "id": "oled1", "top": -120, "left": 250, "attrs": { "i2cAddress": "0x3c" } },
+    { "type": "wokwi-buzzer", "id": "bz1", "top": 200, "left": 260, "attrs": { "volume": "0.1" } },
+    { "type": "wokwi-led", "id": "ledG", "top": -100, "left": 20, "attrs": { "color": "green", "label": "GOOD" } },
+    { "type": "wokwi-led", "id": "ledR", "top": -100, "left": 80, "attrs": { "color": "red", "label": "FIX" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": -40, "left": 10, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": -40, "left": 70, "attrs": { "value": "220" } },
+    { "type": "wokwi-pushbutton", "id": "btnStart", "top": 260, "left": 20, "attrs": { "color": "green", "label": "START", "key": "s" } },
+    { "type": "wokwi-pushbutton", "id": "btnDemo", "top": 260, "left": 110, "attrs": { "color": "blue", "label": "DEMO", "key": "d" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+
+    [ "imu1:VCC", "esp:3V3", "red", [] ],
+    [ "imu1:GND", "esp:GND.1", "black", [] ],
+    [ "imu1:SCL", "esp:22", "blue", [] ],
+    [ "imu1:SDA", "esp:21", "green", [] ],
+
+    [ "oled1:VCC", "esp:3V3", "red", [] ],
+    [ "oled1:GND", "esp:GND.1", "black", [] ],
+    [ "oled1:SCL", "esp:22", "blue", [] ],
+    [ "oled1:SDA", "esp:21", "green", [] ],
+
+    [ "bz1:2", "esp:25", "orange", [] ],
+    [ "bz1:1", "esp:GND.2", "black", [] ],
+
+    [ "esp:26", "r1:1", "green", [] ],
+    [ "r1:2", "ledG:A", "green", [] ],
+    [ "ledG:C", "esp:GND.1", "black", [] ],
+    [ "esp:27", "r2:1", "red", [] ],
+    [ "r2:2", "ledR:A", "red", [] ],
+    [ "ledR:C", "esp:GND.1", "black", [] ],
+
+    [ "btnStart:1.l", "esp:32", "green", [] ],
+    [ "btnStart:2.l", "esp:GND.2", "black", [] ],
+    [ "btnDemo:1.l", "esp:33", "blue", [] ],
+    [ "btnDemo:2.l", "esp:GND.2", "black", [] ]
+  ],
+  "serialMonitor": { "display": "terminal", "newline": "lf" }
+}

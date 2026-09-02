@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PressOn — self-test</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { border-bottom: 1px solid #222a33; padding: 6px 4px; text-align: right; font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; }
+  .ok { color: var(--green); } .ng { color: var(--red); }
+  pre { background: var(--panel); padding: 10px; border-radius: 10px; font-size: 13px; overflow-x: auto; }
+  .live { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+  .live div { background: var(--panel); border-radius: 10px; padding: 8px; text-align: center; font-variant-numeric: tabular-nums; }
+  .live b { display: block; font-size: 22px; }
+</style>
+</head>
+<body>
+<section class="screen">
+  <div class="brand"><h1>Self-test</h1><a href="index.html">← PressOn</a></div>
+  <p class="small">1. The estimator is run on synthetic compressions of known depth and rate (with noise, drift, tilt, jitter) right here in your browser. 2. Your phone's own sensor is shown live so you can check it works before a drill.</p>
+
+  <h3>1 · Estimator accuracy (synthetic signals)</h3>
+  <button id="run" class="btn secondary">Run 150 test cases</button>
+  <div id="result"></div>
+
+  <h3>2 · Your sensor</h3>
+  <button id="sensor" class="btn secondary">Start live sensor check</button>
+  <div class="live">
+    <div>Hz<b id="hz">--</b></div>
+    <div>linear accel API<b id="lin">--</b></div>
+    <div>|g| m/s²<b id="gm">--</b></div>
+    <div>rate<b id="lrate">--</b></div>
+    <div>depth cm<b id="ldepth">--</b></div>
+    <div>count<b id="lcount">--</b></div>
+  </div>
+  <p class="small">Put the phone on a cushion, hands on top, and press ~5 cm at ~110/min. Rate should read 100–120 and depth about 5.</p>
+  <p class="disclaimer">Synthetic tests validate the algorithm, not the human. Real-chest accuracy depends on placement and surface (see docs/ALGORITHM.md).</p>
+</section>
+<script src="estimator.js"></script>
+<script>
+(function () {
+  var P = window.PressOn;
+  function run(samples) {
+    var est = new P.Estimator(), comps = [];
+    for (var i = 0; i < samples.length; i++) {
+      var s = samples[i], ev = est.push(s.ax, s.ay, s.az, s.gx, s.gy, s.gz, s.t);
+      for (var j = 0; j < ev.length; j++) comps.push(ev[j]);
+    }
+    return { comps: comps, m: est.metrics(samples[samples.length - 1].t) };
+  }
+  document.getElementById('run').onclick = function () {
+    var rates = [80, 100, 110, 120, 140], depths = [0.03, 0.04, 0.05, 0.06, 0.07];
+    var conds = [
+      { name: 'clean 60 Hz, flat', fs: 60, noise: 0, drift: 0, tilt: 0, duty: 0.5, hold: 0 },
+      { name: 'noisy 60 Hz, tilted 20°', fs: 60, noise: 0.15, drift: 0.05, tilt: 20, duty: 0.5, hold: 0 },
+      { name: 'noisy, fast down-stroke', fs: 60, noise: 0.15, drift: 0.05, tilt: 10, duty: 0.4, hold: 0.1 },
+      { name: 'noisy, screen down, 50 Hz', fs: 50, noise: 0.15, drift: 0.05, tilt: 15, duty: 0.45, hold: 0.05, down: true },
+      { name: 'noisy 100 Hz, jitter', fs: 100, noise: 0.15, drift: 0.05, tilt: 5, duty: 0.5, hold: 0.05, jit: 0.003 },
+      { name: 'no linear-accel API', fs: 60, noise: 0.15, drift: 0.05, tilt: 20, duty: 0.5, hold: 0, nul: true }
+    ];
+    var html = '<table><tr><th>condition</th><th>max depth err</th><th>mean depth err</th><th>max rate err</th><th>pass</th></tr>';
+    var total = 0, pass = 0;
+    conds.forEach(function (c) {
+      var maxD = 0, sumD = 0, n = 0, maxR = 0, ok = true;
+      rates.forEach(function (rate) { depths.forEach(function (depth) {
+        var samples = P.synth([{ rate: rate, depth: depth, seconds: 20, duty: c.duty, hold: c.hold }],
+          { fs: c.fs, noise: c.noise, drift: c.drift, tiltDeg: c.tilt, jitterS: c.jit, screenDown: c.down, random: P.seeded(rate * 1000 + depth * 1e5) });
+        if (c.nul) samples.forEach(function (s) { s.ax = s.ay = s.az = null; });
+        var r = run(samples);
+        var steady = r.comps.filter(function (e) { return e.t > 3; });
+        var d = steady.reduce(function (a, e) { return a + e.depth; }, 0) / steady.length;
+        var de = Math.abs((d - depth) / depth), re = Math.abs(r.m.rate - rate);
+        maxD = Math.max(maxD, de); sumD += de; n++; maxR = Math.max(maxR, re);
+        total++; if (de < 0.10 && re < 3) pass++; else ok = false;
+      }); });
+      html += '<tr><td>' + c.name + '</td><td>' + (maxD * 100).toFixed(1) + ' %</td><td>' + (sumD / n * 100).toFixed(1) + ' %</td><td>' + maxR.toFixed(1) + ' /min</td><td class="' + (ok ? 'ok' : 'ng') + '">' + (ok ? 'PASS' : 'FAIL') + '</td></tr>';
+    });
+    html += '</table><p class="' + (pass === total ? 'ok' : 'ng') + '"><b>' + pass + ' / ' + total + ' cases within ±10 % depth and ±3 /min rate</b></p>';
+    document.getElementById('result').innerHTML = html;
+  };
+
+  // live sensor
+  var est = null, nEv = 0, tStart = 0;
+  document.getElementById('sensor').onclick = function () {
+    if (!window.DeviceMotionEvent) { alert('No DeviceMotion API in this browser'); return; }
+    var p = typeof DeviceMotionEvent.requestPermission === 'function' ? DeviceMotionEvent.requestPermission() : Promise.resolve('granted');
+    p.then(function (st) {
+      if (st !== 'granted') { alert('Permission denied'); return; }
+      est = new P.Estimator(); nEv = 0; tStart = performance.now();
+      window.addEventListener('devicemotion', function (e) {
+        nEv++;
+        var t = (e.timeStamp > 0 ? e.timeStamp : performance.now()) / 1000;
+        var a = e.acceleration, g = e.accelerationIncludingGravity;
+        if (!g || g.x === null) return;
+        var lin = a && a.x !== null && a.x !== undefined;
+        est.push(lin ? a.x : null, lin ? a.y : null, lin ? a.z : null, g.x, g.y, g.z, t);
+        var el = performance.now() - tStart;
+        if (nEv % 10 === 0) {
+          document.getElementById('hz').textContent = (nEv / (el / 1000)).toFixed(0);
+          document.getElementById('lin').textContent = lin ? 'yes' : 'no (fallback)';
+          document.getElementById('gm').textContent = Math.sqrt(g.x * g.x + g.y * g.y + g.z * g.z).toFixed(2);
+          var m = est.metrics(t);
+          document.getElementById('lrate').textContent = m.count >= 2 && !m.paused ? Math.round(m.rate) : '--';
+          document.getElementById('ldepth').textContent = m.count ? (m.depth * 100).toFixed(1) : '--';
+          document.getElementById('lcount').textContent = m.count;
+        }
+      });
+    });
+  };
+})();
+</script>
+</body>
+</html>

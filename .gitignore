@@ -1,0 +1,12 @@
+.venv/
+certs/
+docs/SUBMISSION_CHECKLIST.md
+docs/PROJECT_STATUS.md
+firmware/presson-trainer/build/
+tools/_synth_side.mp4
+tools/_truth.csv
+truth.csv
+compare.svg
+__pycache__/
+*.pyc
+node_modules/

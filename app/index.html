@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b0f14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="PressOn turns any smartphone into a CPR feedback device: real-time rate and depth coaching from the phone's accelerometer.">
+<title>PressOn — CPR coach in your pocket</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<section id="home" class="screen">
+  <div class="brand">
+    <h1><img class="logo" src="icon.svg" alt="">PressOn</h1>
+    <button id="langBtn" class="langbtn" aria-label="Language">EN / 日本語</button>
+  </div>
+  <p class="tagline" data-i18n="tagline">Any phone becomes a CPR coach.</p>
+
+  <button id="btnRescue" class="btn big" data-i18n="startRescue">START — someone collapsed</button>
+  <button id="btnTraining" class="btn secondary" data-i18n="training">Training mode</button>
+  <button id="btnDemo" class="btn ghost" data-i18n="demo">Desktop demo (no sensor)</button>
+
+  <div id="sensorNote" class="note" hidden></div>
+
+  <div class="links">
+    <a href="selftest.html" data-i18n="selftest">Self-test</a>
+    <a id="instructorLink" href="instructor.html" data-i18n="instructor" hidden>Instructor screen</a>
+    <button id="btnSettings" data-i18n="settings">Settings</button>
+    <a href="https://github.com/" id="repoLink" target="_blank" rel="noopener">GitHub</a>
+  </div>
+
+  <p class="disclaimer" data-i18n="disclaimer"></p>
+</section>
+
+<!-- ============ GUIDED STEPS ============ -->
+<section id="steps" class="screen step" hidden>
+  <div class="stepnum" id="stepNum">1 / 3</div>
+  <h2 id="stepTitle"></h2>
+  <svg id="stepFigure" class="figure" viewBox="0 0 360 200" aria-hidden="true"></svg>
+  <p id="stepBody"></p>
+  <button id="stepBtn" class="btn big"></button>
+  <button id="skipBtn" class="btn ghost" data-i18n="skip">Skip to compressions</button>
+</section>
+
+<!-- ============ LIVE SESSION ============ -->
+<section id="session" class="screen" hidden>
+  <div class="topbar">
+    <span><b id="elapsed">0:00</b></span>
+    <span><b id="count">0</b> <span data-i18n="count">compressions</span></span>
+    <span id="modeLbl"></span>
+  </div>
+  <div id="statusWord" class="status none"></div>
+  <div class="gauges">
+    <div class="gauge">
+      <div class="num" id="rateNum">--</div>
+      <div class="unit" data-i18n="rate">per minute</div>
+      <div class="hbar"><div class="band" style="left:40%;width:20%"></div><div class="fill" id="rateFill" style="left:0"></div></div>
+    </div>
+    <div class="gauge">
+      <div class="num" id="depthNum">--</div>
+      <div class="unit">cm <span data-i18n="depth">depth</span></div>
+      <div class="vbar"><div class="band" style="left:62.5%;width:12.5%"></div><div class="fill" id="depthFill" style="width:0"></div></div>
+    </div>
+  </div>
+  <div class="target" data-i18n="target">target 100–120 /min · 5–6 cm</div>
+  <div class="pulse"><div class="dot" id="pulseDot"></div></div>
+  <div class="cue" id="cueText"></div>
+  <div class="bottombar">
+    <span><span data-i18n="handsOff">hands-off</span> <b id="handsOff">0 s</b></span>
+    <span><span data-i18n="ccf">compression fraction</span> <b id="ccf">--</b></span>
+  </div>
+  <div class="actions">
+    <button id="btnAed" class="btn aed"><div class="hold" id="aedHold"></div><span data-i18n="aed">AED arrived · hold</span></button>
+    <button id="btnStop" class="btn stop"><div class="hold" id="stopHold"></div><span data-i18n="stop">Hold to stop</span></button>
+  </div>
+  <div id="countdown" class="countdown" hidden><div id="countNum">3</div><small data-i18n="countdown">Get ready</small></div>
+</section>
+
+<!-- ============ SUMMARY ============ -->
+<section id="summary" class="screen summary" hidden>
+  <h2 data-i18n="summary">Session summary</h2>
+  <div class="stats">
+    <div class="stat"><div class="v" id="sDuration">--</div><div class="k" data-i18n="duration">Duration</div></div>
+    <div class="stat"><div class="v" id="sCount">--</div><div class="k" data-i18n="count">compressions</div></div>
+    <div class="stat"><div class="v" id="sRate">--</div><div class="k" data-i18n="meanRate">Mean rate</div></div>
+    <div class="stat"><div class="v" id="sDepth">--</div><div class="k" data-i18n="meanDepth">Mean depth</div></div>
+    <div class="stat"><div class="v" id="sInTarget">--</div><div class="k" data-i18n="inTarget">In target</div></div>
+    <div class="stat"><div class="v" id="sCcf">--</div><div class="k" data-i18n="ccf">compression fraction</div></div>
+    <div class="stat"><div class="v" id="sHandsOff">--</div><div class="k" data-i18n="handsOff">hands-off</div></div>
+    <div class="stat"><div class="v" id="sPauses">--</div><div class="k" data-i18n="pauses">Interruptions</div></div>
+  </div>
+  <svg id="chart" class="chart" viewBox="0 0 600 220" aria-label="rate and depth over time"></svg>
+  <p class="small" data-i18n="limits"></p>
+  <button id="btnHandover" class="btn secondary" data-i18n="handover">Copy handover text</button>
+  <button id="btnDebrief" class="btn secondary" data-i18n="debrief">AI debrief</button>
+  <div id="debriefRule" class="debrief"></div>
+  <div id="debriefAi" class="debrief ai" hidden></div>
+  <button id="btnJson" class="btn ghost" data-i18n="download">Download log (JSON)</button>
+  <button id="btnCsv" class="btn ghost" data-i18n="downloadCsv">Download compressions (CSV)</button>
+  <button id="btnNew" class="btn big" data-i18n="newSession">New session</button>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<dialog id="settings">
+  <h3 data-i18n="settings">Settings</h3>
+  <label><span data-i18n="lang">Language</span>
+    <select id="setLang"><option value="en">English</option><option value="ja">日本語</option></select></label>
+  <label><span data-i18n="voice">Voice coaching</span><input type="checkbox" id="setVoice" checked></label>
+  <label><span data-i18n="metronome">Metronome</span><input type="checkbox" id="setMetro" checked></label>
+  <label><span data-i18n="handsFree">Voice commands</span><input type="checkbox" id="setHandsFree"></label>
+  <label id="shareRow"><span data-i18n="share">Send to instructor screen</span><input type="checkbox" id="setShare" checked></label>
+  <label><span>Name (instructor screen)</span><input type="text" id="setName" placeholder="e.g. Yusuke"></label>
+  <h3 style="margin-top:14px" data-i18n="llmTitle">AI debrief (optional)</h3>
+  <p class="help" data-i18n="llmHelp"></p>
+  <label><span data-i18n="llmUrl">Base URL</span><input type="text" id="setLlmUrl" placeholder="https://api.featherless.ai/v1"></label>
+  <label><span data-i18n="llmKey">API key</span><input type="password" id="setLlmKey" autocomplete="off"></label>
+  <label><span data-i18n="llmModel">Model</span><input type="text" id="setLlmModel" placeholder="Qwen/Qwen2.5-7B-Instruct"></label>
+  <div class="row">
+    <button id="setSave" class="btn secondary" data-i18n="save">Save</button>
+    <button id="setClose" class="btn ghost" data-i18n="close">Close</button>
+  </div>
+</dialog>
+
+<script src="estimator.js"></script>
+<script src="coach.js"></script>
+<script src="i18n.js"></script>
+<script src="audio.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+name: 'PressOn trainer: boot self-test, then a synthetic demo session'
+version: 1
+author: 'PressOn'
+steps:
+  - wait-serial: 'SELFTEST PASS'
+  # press the DEMO button: firmware feeds scripted compressions (slow/shallow -> good -> pause -> fast -> good)
+  - set-control:
+      part-id: btnDemo
+      control: pressed
+      value: 1
+  - delay: 150ms
+  - set-control:
+      part-id: btnDemo
+      control: pressed
+      value: 0
+  - wait-serial: '"cue":"harder"'
+  - wait-serial: '"cue":"good"'
+  - wait-serial: '"cue":"resume"'
+  - wait-serial: '"cue":"slower"'
+  - wait-serial: '"type":"end"'
+  - take-screenshot:
+      part-id: oled1
+      save-to: 'oled-summary.png'
