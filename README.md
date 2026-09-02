@@ -18,7 +18,7 @@ No app store, no install, no signal needed: open the link once and it works offl
 | **On a laptop, no sensor** | same link → **Desktop demo**: a scripted rescue is fed into the real estimator, so you see every screen and hear every cue (`app/index.html?demo=1` auto-starts it; tap once for sound) |
 | **Prove the maths** | `app/selftest.html` runs 150 synthetic test cases in your browser and prints the error table below; it also shows your own sensor live |
 | **Classroom view** | `app/instructor.html#demo` — the instructor screen with four simulated trainees (the real one needs `tools/serve.py` on the room's Wi-Fi) |
-| **Embedded version** | paste `firmware/presson-trainer/` into [wokwi.com](https://wokwi.com) (ESP32 + MPU6050 + OLED + buzzer) and press **DEMO** — a scripted session runs through every cue; `selftest.scenario.yaml` does the same headlessly with wokwi-cli (changing the MPU6050's accel Z by hand rarely produces clean compressions) |
+| **Embedded version** | ▶ **[Run the live ESP32 trainer in Wokwi](https://wokwi.com/projects/474093357216243713)** — ESP32 + MPU6050 + OLED + buzzer. Press **DEMO** to watch a full CPR-feedback session. |
 
 ## The problem
 
