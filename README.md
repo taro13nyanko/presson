@@ -5,7 +5,7 @@
 No app store, no install, no signal needed: open the link once and it works offline. The same algorithm also runs as open firmware on a $5 ESP32 puck that you can run in your browser right now.
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="19%"> <img src="docs/screenshots/step3.png" width="19%"> <img src="docs/screenshots/harder.png" width="19%"> <img src="docs/screenshots/good.png" width="19%"> <img src="docs/screenshots/summary.png" width="19%">
+  <img src="docs/screenshots/home.png" width="19%"> <img src="docs/screenshots/step3.png" width="19%"> <img src="docs/screenshots/harder.png" width="19%"> <img src="docs/screenshots/good.png" width="19%"> <img src="docs/screenshots/summary.png" width="19%">YOUR-GITHUB-NAME
 </p>
 
 > VoltHacks 2026 · Smart Health Technology (+ AI + Hardware Integration) · built by a first-year student at the University of Tokyo, alone, with a phone, a cushion and a laptop.
@@ -67,7 +67,7 @@ Full derivation, constants and references: [docs/ALGORITHM.md](docs/ALGORITHM.md
 
 ## Validation
 
-**Status of evidence (what is real and what is simulated).** The accuracy table below is synthetic and has been run (JavaScript and C++). The desktop demo and every screenshot in this README use the synthetic feed. The ESP32 firmware has been compiled with arduino-cli (esp32 core 3.3) and runs its own self-test; it has not been flashed to physical hardware. Tested on a real phone: *not yet — fill in device/OS/date after the cushion test*. Webcam-vs-app comparison on a real session: not yet run. Manikin: none.
+**Status of evidence (what is real and what is simulated).** The accuracy table below is synthetic and has been run (JavaScript and C++). The desktop demo and every screenshot in this README use the synthetic feed. The ESP32 firmware has been compiled with arduino-cli (esp32 core 3.3) and runs its own self-test; it has not been flashed to physical hardware. Tested on a real phone: Pixel 9a, Android 15, 2026-09-04: training mode on a cushion, rate/depth respond as expected. Webcam-vs-app comparison on a real session: not yet run. Manikin: none.
 
 **Synthetic compressions of known depth and rate** (raised-cosine strokes; noise 0.15 m/s², sensor drift, phone tilted up to 20°, 50–100 Hz with timing jitter, screen-down, and the "no linear-acceleration API" fallback path some Android browsers hit). 25 rate/depth combinations per condition, 80–140 /min × 3–7 cm. The same sweep (generator, conditions and seeds) runs through the JavaScript (`node tests/estimator.test.js`) and the C++ firmware port (`firmware/tests/native_test.cpp`, single precision); both print this table with the same pass criteria:
 
