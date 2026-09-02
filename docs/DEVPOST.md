@@ -1,6 +1,6 @@
 # Devpost submission text — copy each block into the matching field
 
-Deadline: **Sep 5, 2026, 5:00 PM EDT = Sep 6, 06:00 JST**. Submit by the evening of Sep 5 JST to be safe. Replace every `YOUR-GITHUB-NAME` (also in README.md) before submitting.
+Deadline: **Sep 5, 2026, 5:00 PM EDT = Sep 6, 06:00 JST**. Submit by the evening of Sep 5 JST to be safe. Replace every `taro13nyanko` (also in README.md) before submitting.
 
 ---
 
@@ -71,12 +71,12 @@ javascript · html5 · css3 · pwa · devicemotion-api · web-audio · web-speec
 Smartphone 3-axis accelerometer (DeviceMotion API); ESP32 DevKit C; MPU6050 IMU; SSD1306 OLED; piezo buzzer; LEDs; push buttons; Wokwi simulator; arduino-cli; JavaScript PWA; Python 3 (http.server, ssl, OpenCV, NumPy); Featherless.ai (OpenAI-compatible LLM API) for the optional debrief.
 
 ## Try it out (links)
-* Live app: `https://YOUR-GITHUB-NAME.github.io/presson/`
-* Repository: `https://github.com/YOUR-GITHUB-NAME/presson`
+* Live app: `https://taro13nyanko.github.io/presson/`
+* Repository: `https://github.com/taro13nyanko/presson`
 * Wokwi project: `https://wokwi.com/projects/<id>` (create it from firmware/presson-trainer, see firmware/README.md)
-* Desktop demo (no sensor): `https://YOUR-GITHUB-NAME.github.io/presson/app/?demo=1`
-* Self-test: `https://YOUR-GITHUB-NAME.github.io/presson/app/selftest.html`
-* Instructor screen (simulated trainees): `https://YOUR-GITHUB-NAME.github.io/presson/app/instructor.html#demo`
+* Desktop demo (no sensor): `https://taro13nyanko.github.io/presson/app/?demo=1`
+* Self-test: `https://taro13nyanko.github.io/presson/app/selftest.html`
+* Instructor screen (simulated trainees): `https://taro13nyanko.github.io/presson/app/instructor.html#demo`
 
 ## Team
 Yusuke Ota — first-year undergraduate, College of Arts and Sciences (Natural Sciences I), The University of Tokyo. Solo.
