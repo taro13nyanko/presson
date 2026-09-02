@@ -73,7 +73,7 @@ Smartphone 3-axis accelerometer (DeviceMotion API); ESP32 DevKit C; MPU6050 IMU;
 ## Try it out (links)
 * Live app: `https://taro13nyanko.github.io/presson/`
 * Repository: `https://github.com/taro13nyanko/presson`
-* Wokwi project: `https://wokwi.com/projects/<id>` (create it from firmware/presson-trainer, see firmware/README.md)
+* Wokwi project: `https://wokwi.com/projects/474093357216243713` (create it from firmware/presson-trainer, see firmware/README.md)
 * Desktop demo (no sensor): `https://taro13nyanko.github.io/presson/app/?demo=1`
 * Self-test: `https://taro13nyanko.github.io/presson/app/selftest.html`
 * Instructor screen (simulated trainees): `https://taro13nyanko.github.io/presson/app/instructor.html#demo`
